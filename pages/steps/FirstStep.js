@@ -25,19 +25,21 @@ function FirstStep() {
 
     return (
         <Formik
-            initialValues={{checkinDate: new Date(), checkoutDate: dateNow.setHours(dateNow.getHours())}}
+            initialValues={{checkinDate: new Date(), checkoutDate: dateNow.setDate(dateNow.getDate() + 1)}}
             // validationSchema={DateSchema}
             onSubmit={(values, {setSubmitting}) => {
                 setTimeout(() => {
                     setSubmitting(false)
                     dispatch(Actions.setDates(values))
-                    router.push({
-                        pathname: '/steps/secondStep'
-                    })
+                    if (flag) {
+                        router.push({
+                            pathname: '/steps/secondStep'
+                        })
+                    }
                 }, 400)
             }}
         >
-            {({isSubmitting, values, setFieldValue, errors}) => (
+            {({isSubmitting, values, setFieldValue}) => (
                 <div className="p-24 mt-256 max-w-5xl m-auto">
                     <Stepper activeStep={0} />
                     <Form>
@@ -47,12 +49,10 @@ function FirstStep() {
                                     Select time of checkin
                                 </Typography>
                                 <DatePicker
-                                    disabled={flag}
                                     showTimeSelect
                                     selected={values.checkinDate}
                                     name="checkinDate"
                                     onChange={date => {
-                                        setFlag(true)
                                         setFieldValue('checkinDate', date)
                                     }}
                                     minDate={dateNow}
@@ -69,12 +69,14 @@ function FirstStep() {
                                     Select time of checkout
                                 </Typography>
                                 <DatePicker
-                                    disabled={!flag}
                                     selected={values.checkoutDate}
                                     name="checkoutDate"
-                                    onChange={date => setFieldValue('checkoutDate', date)}
+                                    onChange={date => {
+                                        setFlag(true)
+                                        setFieldValue('checkoutDate', date)
+                                    }}
                                     showTimeSelect
-                                    minDate={new Date()}
+                                    minDate={dateNow}
                                     timeFormat="HH:mm"
                                     timeIntervals={15}
                                     dateFormat="MMMM d, yyyy h:mm aa"
@@ -83,7 +85,7 @@ function FirstStep() {
                         </div>
                         <div className="w-full text-center">
                             <Button
-                                disabled={!flag && isSubmitting}
+                                disabled={!isSubmitting && !flag}
                                 type="submit"
                                 variant="contained"
                                 className={
